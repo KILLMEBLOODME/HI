@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Hi</title>
+<style>
+  html, body {
+    margin: 0; padding: 0; height: 100%; overflow: hidden;
+    background: black;
+  }
+  #screamer {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background-size: cover;
+    background-position: center;
+    z-index: 9999;
+  }
+</style>
+</head>
+<body>
+
+<div id="screamer"></div>
+
+<audio id="audio" src="video.mp3" loop></audio>
+
+<script>
+  const screamer = document.getElementById('screamer');
+  const audio = document.getElementById('audio');
+
+  const images = [
+    'Без названия279_20250612214736.png',
+    'Без названия279_20250612214634.png'
+  ];
+
+  let currentIndex = 0;
+  let intervalId;
+
+  function startScreamer() {
+    // Показать скример
+    screamer.style.display = 'block';
+
+    // Запросить полноэкранный режим
+    if (document.fullscreenElement === null) {
+      document.documentElement.requestFullscreen().catch(err => {
+        console.log('Ошибка запроса полноэкранного режима:', err);
+      });
+    }
+
+    // Установить громкость на максимум
+    audio.volume = 1.0;
+
+    // Запустить звук
+    audio.play().catch(e => {
+      console.log('Автовоспроизведение заблокировано:', e);
+    });
+
+    // Запустить смену изображений
+    intervalId = setInterval(() => {
+      screamer.style.backgroundImage = `url('${images[currentIndex]}')`;
+      currentIndex = (currentIndex + 1) % images.length;
+    }, 100); // 100 мс = 0.1 сек
+  }
+
+  function stopScreamer() {
+    screamer.style.display = 'none';
+    audio.pause();
+    clearInterval(intervalId);
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    }
+  }
+
+  // Начинаем сразу после загрузки страницы
+  window.addEventListener('load', () => {
+    startScreamer();
+  });
+
+  // При выходе из полноэкранного режима останавливаем скример
+  document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement) {
+      stopScreamer();
+    }
+  });
+
+  // Также можно остановить по Esc
+  window.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      stopScreamer();
+    }
+  });
+</script>
+
+</body>
+</html>
