@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Hi</title>
+<title>hi</title>
 <style>
   html, body {
     margin: 0; padding: 0; height: 100%; overflow: hidden;
@@ -17,17 +17,26 @@
     background-position: center;
     z-index: 9999;
   }
+  /* Видео скрываем, но звук должен играть */
+  #background-video {
+    position: fixed;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+    z-index: -1;
+  }
 </style>
 </head>
 <body>
 
 <div id="screamer"></div>
 
-<audio id="audio" src="video.mp3" loop></audio>
+<video id="background-video" src="video.mp4" loop playsinline></video>
 
 <script>
   const screamer = document.getElementById('screamer');
-  const audio = document.getElementById('audio');
+  const video = document.getElementById('background-video');
 
   const images = [
     'Без названия279_20250612214736.png',
@@ -38,53 +47,45 @@
   let intervalId;
 
   function startScreamer() {
-    // Показать скример
     screamer.style.display = 'block';
 
-    // Запросить полноэкранный режим
     if (document.fullscreenElement === null) {
       document.documentElement.requestFullscreen().catch(err => {
         console.log('Ошибка запроса полноэкранного режима:', err);
       });
     }
 
-    // Установить громкость на максимум
-    audio.volume = 1.0;
-
-    // Запустить звук
-    audio.play().catch(e => {
-      console.log('Автовоспроизведение заблокировано:', e);
+    video.volume = 1.0;   // громкость максимум
+    video.muted = false;  // звук включён
+    video.play().catch(e => {
+      console.log('Автовоспроизведение видео заблокировано:', e);
     });
 
-    // Запустить смену изображений
     intervalId = setInterval(() => {
       screamer.style.backgroundImage = `url('${images[currentIndex]}')`;
       currentIndex = (currentIndex + 1) % images.length;
-    }, 100); // 100 мс = 0.1 сек
+    }, 100);
   }
 
   function stopScreamer() {
     screamer.style.display = 'none';
-    audio.pause();
+    video.pause();
     clearInterval(intervalId);
     if (document.fullscreenElement) {
       document.exitFullscreen();
     }
   }
 
-  // Начинаем сразу после загрузки страницы
   window.addEventListener('load', () => {
     startScreamer();
   });
 
-  // При выходе из полноэкранного режима останавливаем скример
   document.addEventListener('fullscreenchange', () => {
     if (!document.fullscreenElement) {
       stopScreamer();
     }
   });
 
-  // Также можно остановить по Esc
   window.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
       stopScreamer();
@@ -94,3 +95,4 @@
 
 </body>
 </html>
+
